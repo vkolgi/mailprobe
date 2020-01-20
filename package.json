@@ -1,0 +1,31 @@
+{
+  "name": "mailprobe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-handlebars": "^3.1.0",
+    "http-errors": "~1.6.3",
+    "install": "^0.13.0",
+    "mailparser": "^2.7.7",
+    "morgan": "~1.9.1",
+    "smtp-server": "^3.5.0"
+  },
+  "description": "A e-mail testing library for test automation and unittests",
+  "main": "app.js",
+  "keywords": [
+    "mail",
+    "testing"
+  ],
+  "author": "Vinayak Kolagi",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
