@@ -5,7 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mailstack = require("./routes/stack.js")();
 
-var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var exphbs = require("express-handlebars");
 
@@ -14,8 +13,21 @@ const simpleParser = require("mailparser").simpleParser;
 
 var app = express();
 // view engine setup
-app.engine("handlebars", exphbs());
-app.set("view engine", "handlebars");
+app.engine(
+  "hbs",
+  exphbs({
+    extname: "hbs",
+    defaultLayout: "mainlayout",
+    layoutsDir: path.join(__dirname, "views")
+  })
+);
+
+app.get("/", function(req, res) {
+  res.render("mainlayout");
+});
+
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "views"));
 
 // create mail server
 const server = new SMTPServer({
@@ -53,7 +65,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
 app.use("/users", usersRouter);
 
 app.use("/mailbox", (req, response) => {
