@@ -70,16 +70,13 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/users", usersRouter);
 
 app.use("/find", (req, res) => {
-  console.log(req.body);
   db.findEmail(req.query).exec((error, docs) => {
-    console.log(docs);
     res.json(docs);
   });
 });
 
 app.use("/mailbox", (req, response) => {
   db.getInbox().exec((error, docs) => {
-    console.log(docs);
     response.json(docs);
   });
 });
