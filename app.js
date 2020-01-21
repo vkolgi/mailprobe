@@ -3,16 +3,13 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-var mailstack = require("./routes/stack.js")();
+var db = require("./db/datastore")();
 
 var usersRouter = require("./routes/users");
 var exphbs = require("express-handlebars");
 
 const SMTPServer = require("smtp-server").SMTPServer;
 const simpleParser = require("mailparser").simpleParser;
-
-var Datastore = require('nedb');
-var db = new Datastore();
 
 var app = express();
 // view engine setup
@@ -32,6 +29,9 @@ app.get("/", function(req, res) {
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
+// Import data store and get handle to db
+dbHandle = db.getStore();
+
 // create mail server
 const server = new SMTPServer({
   authOptional: true,
@@ -47,8 +47,7 @@ const server = new SMTPServer({
   },
   onData(stream, session, callback) {
     parseEmail(stream).then(mail => {
-      console.log(mail);
-      mailstack.push(mail);
+      db.insertEmail(mail);
       callback();
     }, callback);
   }
@@ -70,21 +69,19 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/users", usersRouter);
 
-app.use("/mailbox", (req, response) => {
-  let itemsList = [];
-  console.log(mailstack);
-  mailstack.stackArray.forEach(item => {
-    itemsList.push(item);
+app.use("/find", (req, res) => {
+  console.log(req.body);
+  db.findEmail(req.query).exec((error, docs) => {
+    console.log(docs);
+    res.json(docs);
   });
-  response.json(itemsList);
 });
 
-app.use("/mailbox_fromdb", (req, response) => {
-  db.insert(mailstack.stackArray, (err, doc) => {
-    console.log({'Inserted':doc});
-    response.json({'Inserted':doc});
+app.use("/mailbox", (req, response) => {
+  db.getInbox().exec((error, docs) => {
+    console.log(docs);
+    response.json(docs);
   });
-  
 });
 
 // catch 404 and forward to error handler
