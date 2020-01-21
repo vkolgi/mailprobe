@@ -15,6 +15,7 @@
     "install": "^0.13.0",
     "mailparser": "^2.7.7",
     "morgan": "~1.9.1",
+    "nedb": "^1.8.0",
     "smtp-server": "^3.5.0"
   },
   "description": "A e-mail testing library for test automation and unittests",

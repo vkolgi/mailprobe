@@ -11,6 +11,9 @@ var exphbs = require("express-handlebars");
 const SMTPServer = require("smtp-server").SMTPServer;
 const simpleParser = require("mailparser").simpleParser;
 
+var Datastore = require('nedb');
+var db = new Datastore();
+
 var app = express();
 // view engine setup
 app.engine(
@@ -74,6 +77,14 @@ app.use("/mailbox", (req, response) => {
     itemsList.push(item);
   });
   response.json(itemsList);
+});
+
+app.use("/mailbox_fromdb", (req, response) => {
+  db.insert(mailstack.stackArray, (err, doc) => {
+    console.log({'Inserted':doc});
+    response.json({'Inserted':doc});
+  });
+  
 });
 
 // catch 404 and forward to error handler
