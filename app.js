@@ -30,7 +30,7 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
 // Import data store and get handle to db
-dbHandle = db.getStore();
+dbHandle = db.getStore("updated_emailstore");
 
 // create mail server
 const server = new SMTPServer({
@@ -42,7 +42,6 @@ const server = new SMTPServer({
     return callback();
   },
   onMailFrom(address, session, cb) {
-    console.log(address, session);
     cb();
   },
   onData(stream, session, callback) {
@@ -70,7 +69,20 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/users", usersRouter);
 
 app.use("/find", (req, res) => {
-  db.findEmail(req.query).exec((error, docs) => {
+  let predicate = Object.assign({}, req.query);
+
+  //delete to and cc as we have to process them separately
+  delete predicate["to"];
+  delete predicate["cc"];
+
+  if (req.query.cc) {
+    predicate["cc.value"] = { $elemMatch: { address: req.query.cc } };
+  }
+  if (req.query.to) {
+    predicate["to.value"] = { $elemMatch: { address: req.query.to } };
+  }
+
+  db.findEmail(predicate).exec((error, docs) => {
     res.json(docs);
   });
 });
@@ -85,16 +97,5 @@ app.use("/mailbox", (req, response) => {
 app.use(function(req, res, next) {
   next(createError(404));
 });
-
-//// error handler
-//app.use(function(err, req, res, next) {
-//// set locals, only providing error in development
-//res.locals.message = err.message;
-//res.locals.error = req.app.get("env") === "development" ? err : {};
-
-//// render the error page
-//res.status(err.status || 500);
-//res.json({ name: "Eror", error: err.message });
-//});
 
 module.exports = app;
