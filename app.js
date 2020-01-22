@@ -5,7 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var db = require("./db/datastore")();
 
-var usersRouter = require("./routes/users");
 var exphbs = require("express-handlebars");
 
 const SMTPServer = require("smtp-server").SMTPServer;
@@ -66,30 +65,44 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/users", usersRouter);
-
-app.use("/find", (req, res) => {
-  let predicate = Object.assign({}, req.query);
+function buildPredicate(query) {
+  let predicate = Object.assign({}, query);
 
   //delete to and cc as we have to process them separately
   delete predicate["to"];
   delete predicate["cc"];
 
-  if (req.query.cc) {
-    predicate["cc.value"] = { $elemMatch: { address: req.query.cc } };
+  if (query.cc) {
+    predicate["cc.value"] = { $elemMatch: { address: query.cc } };
   }
-  if (req.query.to) {
-    predicate["to.value"] = { $elemMatch: { address: req.query.to } };
+  if (query.to) {
+    predicate["to.value"] = { $elemMatch: { address: query.to } };
   }
+  return predicate;
+}
 
+app.use("/api/find", (req, res) => {
+  let predicate = buildPredicate(req.query);
   db.findEmail(predicate).exec((error, docs) => {
     res.json(docs);
   });
 });
 
-app.use("/mailbox", (req, response) => {
+app.use("/api/mailbox", (req, response) => {
   db.getInbox().exec((error, docs) => {
     response.json(docs);
+  });
+});
+
+app.use("/api/purge", (req, response) => {
+  let predicate = buildPredicate(req.query);
+  dbHandle.remove(predicate, { multi: true }, (err, numRemoved) => {
+    console.log(numRemoved);
+    if (!err) {
+      response.json({ rows_removed: numRemoved });
+    } else {
+      response.json({ error: err });
+    }
   });
 });
 

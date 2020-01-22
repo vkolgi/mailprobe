@@ -25,6 +25,11 @@ module.exports = function DB() {
       return dbHandle.find(predicate);
     },
 
+    purge(predicate) {
+      value = dbHandle.remove(predicate, {});
+      return value;
+    },
+
     getInbox() {
       return dbHandle.find({});
     }
