@@ -7,10 +7,10 @@
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th scope="col"><strong>From</strong></th>
-                    <th scope="col">Subject</th>
-                    <th scope="col">To</th>
-                    <th scope="col">Date</th>
+                    <th><h5>From</h5></th>
+                    <th><h5>Subject</h5></th>
+                    <th><h5>To</h5></th>
+                    <th><h5>Date</h5></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -18,7 +18,7 @@
                 {{#each docs}}
                   <tr onclick="window.location='/details/{{this._id}}'">
                     <td>{{this.from.value.[0].address}}</td>
-                    <td>{{this.subject}}</td>
+                    <td class="text-info">{{this.subject}}</td>
                     <td>{{this.to.value.[0].address}}</td>
                     <td>{{this.date}}</td>
                   </tr>
@@ -36,6 +36,7 @@
           <h4 class="card-header">Subject: {{details.subject}}</h4>
             <div class="card-body">
                   <p class="lead">{{{details.textAsHtml}}}</p>
+		  <footer class="blockquote-footer">Date: <cite title="Source Title">{{details.date}}</cite></footer>
             </div>
       </div>
     </div>

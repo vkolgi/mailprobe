@@ -31,7 +31,7 @@ module.exports = function DB() {
     },
 
     getInbox() {
-      return dbHandle.find({});
+      return dbHandle.find({}).sort({ date: -1 });
     }
   };
 };
