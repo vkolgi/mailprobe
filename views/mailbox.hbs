@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<div class="container">
+<div class="bs-docs-section">
+        <div class="row">
+
+            <div class="bs-component">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col"><strong>From</strong></th>
+                    <th scope="col">Subject</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                {{#each docs}}
+                  <tr>
+                    <td>{{this.from.value.[0].address}}</td>
+                    <td>{{this.subject}}</td>
+                    <td>{{this.to.value.[0].address}}</td>
+                    <td>{{this.date}}</td>
+                  </tr>
+                {{/each}}
+
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+</div>

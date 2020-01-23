@@ -22,7 +22,7 @@ app.engine(
 );
 
 app.get("/", function(req, res) {
-  res.render("mainlayout");
+  res.render("mainlayout", { layout: false });
 });
 
 app.set("view engine", "hbs");
@@ -81,6 +81,7 @@ function buildPredicate(query) {
   return predicate;
 }
 
+// API Handlers
 app.use("/api/find", (req, res) => {
   let predicate = buildPredicate(req.query);
   db.findEmail(predicate).exec((error, docs) => {
@@ -88,7 +89,7 @@ app.use("/api/find", (req, res) => {
   });
 });
 
-app.use("/api/mailbox", (req, response) => {
+app.use("/api/inbox", (req, response) => {
   db.getInbox().exec((error, docs) => {
     response.json(docs);
   });
@@ -103,6 +104,13 @@ app.use("/api/purge", (req, response) => {
     } else {
       response.json({ error: err });
     }
+  });
+});
+
+//UI Handlers
+app.use("/inbox", (req, response) => {
+  db.getInbox().exec((error, docs) => {
+    response.render("mailbox", { layout: "mainlayout", docs: docs });
   });
 });
 
