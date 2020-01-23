@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<div class="container">
+<div class="row">
+<div class="col-lg-9">
 <div class="bs-docs-section">
-        <div class="row">
 
             <div class="bs-component">
               <table class="table table-hover">
@@ -16,7 +16,7 @@
                 <tbody>
 
                 {{#each docs}}
-                  <tr>
+                  <tr onclick="window.location='/details/{{this._id}}'">
                     <td>{{this.from.value.[0].address}}</td>
                     <td>{{this.subject}}</td>
                     <td>{{this.to.value.[0].address}}</td>
@@ -27,6 +27,18 @@
                 </tbody>
               </table>
           </div>
-        </div>
       </div>
+  </div>
+  {{#if email_id}}
+  <div class="col-lg-3">
+    <div class="bs-docs-section mt-3">
+      <div class="card border-secondary mb-3">
+          <h4 class="card-header">Subject: {{details.subject}}</h4>
+            <div class="card-body">
+                  <p class="lead">{{{details.textAsHtml}}}</p>
+            </div>
+      </div>
+    </div>
+  </div>
+  {{/if}}
 </div>

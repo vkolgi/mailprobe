@@ -108,9 +108,24 @@ app.use("/api/purge", (req, response) => {
 });
 
 //UI Handlers
-app.use("/inbox", (req, response) => {
+app.use("/inbox/", (req, response) => {
   db.getInbox().exec((error, docs) => {
+    console.log("Email id captured:" + req.params.id);
     response.render("mailbox", { layout: "mainlayout", docs: docs });
+  });
+});
+
+app.use("/details/:id", (req, response) => {
+  db.getInbox().exec((error, docs) => {
+    db.findEmail({ _id: req.params.id }).exec((err, result) => {
+      console.log(err, result);
+      response.render("mailbox", {
+        layout: "mainlayout",
+        docs: docs,
+        email_id: req.params.id,
+        details: result[0]
+      });
+    });
   });
 });
 
