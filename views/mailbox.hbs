@@ -35,7 +35,11 @@
       <div class="card border-secondary mb-3">
           <h4 class="card-header">Subject: {{details.subject}}</h4>
             <div class="card-body">
-                  <p class="lead">{{{details.textAsHtml}}}</p>
+                  {{#if details.html}}
+                    {{{details.html}}}
+                  {{else}}
+                    {{details.text}}
+                  {{/if}}
 		  <footer class="blockquote-footer">Date: <cite title="Source Title">{{details.date}}</cite></footer>
             </div>
       </div>
