@@ -15,6 +15,9 @@ module.exports = function DB() {
 
     insertEmail(doc) {
       if (dbHandle !== null) {
+        if (!doc.date) {
+          doc["date"] = { $$date: Date.now() };
+        }
         return dbHandle.insert(doc);
       }
       return null;

@@ -57,7 +57,7 @@ function parseEmail(stream) {
   });
 }
 
-server.listen(465);
+server.listen(25);
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -119,12 +119,14 @@ app.use("/details/:id", (req, response) => {
   db.getInbox().exec((error, docs) => {
     db.findEmail({ _id: req.params.id }).exec((err, result) => {
       console.log(err, result);
-      response.render("mailbox", {
-        layout: "mainlayout",
-        docs: docs,
-        email_id: req.params.id,
-        details: result[0]
-      });
+      if (result[0].html) {
+        response.write(result[0].html);
+      } else {
+        response.write(
+          "<html><body>" + result[0].textAsHtml + "</body></html>"
+        );
+      }
+      response.end();
     });
   });
 });

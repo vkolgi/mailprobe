@@ -5,6 +5,8 @@
     <title>Example App</title>
     <link rel="stylesheet" href="/stylesheets/bootstrap.min.css" media="all">
     <link href="/stylesheets/font/css/open-iconic-bootstrap.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -31,4 +33,16 @@
 
 {{{ body }}}
 </body>
+
+<script type="text/javascript">
+  $('#myModal').on('show.bs.modal', function (event) {
+    let email_id = $(event.relatedTarget).data('email-id')
+    //Set subject 
+    let tr = $(event.relatedTarget);
+    let subject = tr.find('.subject').text();
+    console.log(subject);
+    $(event.currentTarget).find('#modal-container #emailiframe').attr('src','/details/'+email_id);
+    $(event.currentTarget).find('.modal-title').text(subject);
+  })
+</script>
 </html>

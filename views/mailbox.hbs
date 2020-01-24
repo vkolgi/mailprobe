@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <div class="row">
-<div class="col-lg-9">
+<div class="col-lg-12">
 <div class="bs-docs-section">
 
             <div class="bs-component">
@@ -16,11 +16,12 @@
                 <tbody>
 
                 {{#each docs}}
-                  <tr onclick="window.location='/details/{{this._id}}'">
-                    <td>{{this.from.value.[0].address}}</td>
-                    <td class="text-info">{{this.subject}}</td>
-                    <td>{{this.to.value.[0].address}}</td>
-                    <td>{{this.date}}</td>
+                  <!--<tr onclick="window.location='/details/{{this._id}}'">-->
+                  <tr data-toggle="modal" data-target="#myModal" data-email-id={{this._id}}>
+                    <td class="fromaddress" style="font-size:medium">{{this.from.value.[0].address}}</td>
+                    <td class="text-info subject" style="font-size:medium">{{this.subject}}</td>
+                    <td class="toaddress" style="font-size:medium" >{{this.to.value.[0].address}}</td>
+                    <td class="date" style="font-size:medium">{{this.date}}</td>
                   </tr>
                 {{/each}}
 
@@ -29,21 +30,42 @@
           </div>
       </div>
   </div>
-  {{#if email_id}}
-  <div class="col-lg-3">
-    <div class="bs-docs-section mt-3">
-      <div class="card border-secondary mb-3">
-          <h4 class="card-header">Subject: {{details.subject}}</h4>
-            <div class="card-body">
-                  {{#if details.html}}
-                    {{{details.html}}}
-                  {{else}}
-                    {{details.text}}
-                  {{/if}}
-		  <footer class="blockquote-footer">Date: <cite title="Source Title">{{details.date}}</cite></footer>
-            </div>
+
+  <div class="modal" id="myModal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" style="height:75vh;">
+      <div class="modal-header">
+        <p class="modal-title h3">Modal title</p>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-container">
+        <iframe src="" id="emailiframe" frameborder="0" width="100%" height="100%" style="position:relative;">
+        </iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
-  {{/if}}
+</div>
+
+  <!--{{#if email_id}}-->
+  <!--<div class="col-lg-3">-->
+    <!--<div class="bs-docs-section mt-3">-->
+      <!--<div class="card border-secondary mb-3">-->
+          <!--<h4 class="card-header">Subject: {{details.subject}}</h4>-->
+            <!--<div class="card-body">-->
+                  <!--{{#if details.html}}-->
+                    <!--{{{details.html}}}-->
+                  <!--{{else}}-->
+                    <!--{{details.text}}-->
+                  <!--{{/if}}-->
+		  <!--<footer class="blockquote-footer">Date: <cite title="Source Title">{{details.date}}</cite></footer>-->
+            <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+  <!--</div>-->
+  <!--{{/if}}-->
 </div>
