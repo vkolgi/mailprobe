@@ -17,6 +17,9 @@
     "nedb": "^1.8.0",
     "smtp-server": "^3.5.0"
   },
+  "bin": {
+    "mailprobe": "./bin/www"
+  },
   "description": "A e-mail testing library for test automation and unittests",
   "main": "app.js",
   "keywords": [
