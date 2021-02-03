@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Example App</title>
+    <title>Mailprobe: Test Email Inbox</title>
     <link rel="stylesheet" href="/stylesheets/bootstrap.min.css" media="all">
     <link href="/stylesheets/font/css/open-iconic-bootstrap.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -20,21 +20,47 @@
       <li class="nav-item active">
         <a class="nav-link" href="/inbox">Inbox <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Settings</a>
-      </li>
+      <!--<li class="nav-item">-->
+        <!--<a class="nav-link" href="#">Settings</a>-->
+      <!--</li>-->
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search">
+    <form id="search" class="form-inline my-2 my-lg-0" action="">
+      <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchtext">
       <button class="btn btn-success my-2 my-sm-0" type="submit"><span class="oi oi-magnifying-glass" title="icon name" aria-hidden="true"></span></button>
     </form>
+    <div class="ml-5">
+    <button class="btn btn-danger" id="deleteall" type="button"><span class="oi oi-delete" title="icon name"></span> Delete All </button>
+    </div>
   </div>
 </nav>
 
 {{{ body }}}
+  <div class="toast" data-delay="10000">
+    <div class="toast-header">
+      Delete
+    </div>
+    <div class="toast-body">
+      Deleted all emails from inbox
+    </div>
+  </div>
 </body>
 
 <script type="text/javascript">
+
+  $("#deleteall").click(function(event){
+    event.preventDefault();
+    $.ajax({url: "/api/purge", success: function(result){
+      $('.toast').toast('show');
+      document.location.href = "/inbox";
+    }});
+  });
+
+  $("#search").submit(function(event){
+    var predicate = $("#searchtext").val();
+    event.preventDefault();
+    document.location.href = "/inbox/?to=" + predicate;
+  });
+
   $('#myModal').on('show.bs.modal', function (event) {
     let email_id = $(event.relatedTarget).data('email-id')
     //Set subject 

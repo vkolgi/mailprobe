@@ -17,11 +17,11 @@ app.engine(
   exphbs({
     extname: "hbs",
     defaultLayout: "mainlayout",
-    layoutsDir: path.join(__dirname, "views")
+    layoutsDir: path.join(__dirname, "views"),
   })
 );
 
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.render("mainlayout", { layout: false });
 });
 
@@ -37,22 +37,21 @@ const server = new SMTPServer({
   allowInsecureAuth: true,
   maxAllowedUnauthenticatedCommands: 1000,
   onConnect(session, callback) {
-    console.log("The session is connected");
     return callback();
   },
   onMailFrom(address, session, cb) {
     cb();
   },
   onData(stream, session, callback) {
-    parseEmail(stream).then(mail => {
+    parseEmail(stream).then((mail) => {
       db.insertEmail(mail);
       callback();
     }, callback);
-  }
+  },
 });
 
 function parseEmail(stream) {
-  return simpleParser(stream).then(email => {
+  return simpleParser(stream).then((email) => {
     return email;
   });
 }
@@ -98,7 +97,6 @@ app.use("/api/inbox", (req, response) => {
 app.use("/api/purge", (req, response) => {
   let predicate = buildPredicate(req.query);
   dbHandle.remove(predicate, { multi: true }, (err, numRemoved) => {
-    console.log(numRemoved);
     if (!err) {
       response.json({ rows_removed: numRemoved });
     } else {
@@ -109,8 +107,8 @@ app.use("/api/purge", (req, response) => {
 
 //UI Handlers
 app.use("/inbox/", (req, response) => {
-  db.getInbox().exec((error, docs) => {
-    console.log("Email id captured:" + req.params.id);
+  let predicate = buildPredicate(req.query);
+  db.getInbox(predicate).exec((error, docs) => {
     response.render("mailbox", { layout: "mainlayout", docs: docs });
   });
 });
@@ -118,7 +116,6 @@ app.use("/inbox/", (req, response) => {
 app.use("/details/:id", (req, response) => {
   db.getInbox().exec((error, docs) => {
     db.findEmail({ _id: req.params.id }).exec((err, result) => {
-      console.log(err, result);
       if (result[0].html) {
         response.write(result[0].html);
       } else {
@@ -132,7 +129,7 @@ app.use("/details/:id", (req, response) => {
 });
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 

@@ -7,7 +7,7 @@ module.exports = function DB() {
       if (dbHandle === null) {
         dbHandle = new Datastore({
           filename: fileName || "emailstore",
-          autoload: true
+          autoload: true,
         });
       }
       return dbHandle;
@@ -24,7 +24,6 @@ module.exports = function DB() {
     },
 
     findEmail(predicate) {
-      console.log(predicate);
       return dbHandle.find(predicate);
     },
 
@@ -33,8 +32,8 @@ module.exports = function DB() {
       return value;
     },
 
-    getInbox() {
-      return dbHandle.find({}).sort({ date: -1 });
-    }
+    getInbox(predicate) {
+      return dbHandle.find(predicate).sort({ date: -1 });
+    },
   };
 };
