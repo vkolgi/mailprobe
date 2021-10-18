@@ -7,80 +7,120 @@
 var app = require("../app");
 var debug = require("debug")("mailprobe:server");
 var http = require("http");
+var db = require("../db/authdb");
+var crypto = require("crypto");
+const readline = require("readline");
 
-/**
- * Get port from environment and store in Express.
- */
+/** Check if there is a command to create user */
+var args = process.argv.slice(2);
+if (args.length > 0 && args[0] === "createuser") {
 
-var port = normalizePort(process.env.PORT || "3000");
-app.set("port", port);
+  var salt = crypto.randomBytes(16);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
 
-/**
- * Create HTTP server.
- */
+  // Read Username and password from console
+  rl.question(`Enter the user name: `, function(name) {
+    rl.question(`Enter the password: `, function(password) {   
+      
+      crypto.pbkdf2(password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
+        if (err) { console.log(err) };
+        db.run('INSERT INTO users (username, hashed_password, salt, name) VALUES (?, ?, ?, ?)', [
+          name,
+          hashedPassword,
+          salt,
+          "webuser"
+        ], function(err) {
+          if (err) { 
+            console.log(err);
+          }
+          else {
+            console.log("User is created");
+          }
+          process.exit();
+        });
+      });
+    });
+  });
 
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
 }
+else {
+  /* Get port from environment and store in Express.
+  */
 
-/**
- * Event listener for HTTP server "error" event.
- */
+  var port = normalizePort(process.env.PORT || "3000");
+  app.set("port", port);
 
-function onError(error) {
-  if (error.syscall !== "listen") {
-    throw error;
+  /**
+   * Create HTTP server.
+   */
+
+  var server = http.createServer(app);
+
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+
+  server.listen(port);
+  server.on("error", onError);
+  server.on("listening", onListening); 
+
+  /**
+   * Normalize a port into a number, string, or false.
+   */
+
+  function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+      // named pipe
+      return val;
+    }
+
+    if (port >= 0) {
+      // port number
+      return port;
+    }
+
+    return false;
   }
 
-  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+  /**
+   * Event listener for HTTP server "error" event.
+   */
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case "EACCES":
-      console.error(bind + " requires elevated privileges");
-      process.exit(1);
-      break;
-    case "EADDRINUSE":
-      console.error(bind + " is already in use");
-      process.exit(1);
-      break;
-    default:
+  function onError(error) {
+    if (error.syscall !== "listen") {
       throw error;
+    }
+
+    var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case "EACCES":
+        console.error(bind + " requires elevated privileges");
+        process.exit(1);
+        break;
+      case "EADDRINUSE":
+        console.error(bind + " is already in use");
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
   }
-}
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
 
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
-  debug("Listening on " + bind);
+  function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+    debug("Listening on " + bind);
+  }
+
 }
