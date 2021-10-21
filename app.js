@@ -7,6 +7,7 @@ var passport = require("passport");
 var ensureLoggedIn = require("connect-ensure-login").ensureLoggedIn;
 var flash = require("connect-flash");
 var apiRouter = express.Router();
+var uiRouter = express.Router();
 const { nanoid } = require('nanoid');
 const KEYLENGTH = 20;
 
@@ -28,6 +29,13 @@ const SMTPServer = require("smtp-server").SMTPServer;
 const simpleParser = require("mailparser").simpleParser;
 const authdb = require("./db/authdb");
 const auth = require("./boot/auth");
+const e = require("connect-flash");
+var AUTH_ENABLED = false
+
+authdb.all("SELECT * FROM users", (error, rows) => {
+    // If there are users provisioned, then enable authentication.
+    AUTH_ENABLED = rows.length > 0 ? true : false;
+});
 
 var app = express();
 // view engine setup
@@ -44,10 +52,6 @@ app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
-
-app.get("/", ensureLoggedIn('/login'), function (req, res) {
-  res.render("mainlayout", { layout: false, user: req.user });
-});
 
 app.use(function(req, res, next) {
   var msgs = req.session.messages || [];
@@ -140,15 +144,25 @@ apiRouter.use("/purge", (req, response) => {
   });
 });
 
+function showControls(req) {
+  return AUTH_ENABLED ? (req.user ? true: false) : true;
+}
+
 //UI Handlers
-app.use("/inbox/", ensureLoggedIn('/login'), (req, response) => {
+uiRouter.use(validateLogin("/login"));
+
+uiRouter.get("/", function (req, res) {
+  res.render("mainlayout", { layout: false, showControls: showControls(req), user: req.user});
+});
+
+uiRouter.use("/inbox/", (req, response) => {
   let predicate = buildPredicate(req.query);
   db.getInbox(predicate).exec((error, docs) => {
-    response.render("mailbox", { layout: "mainlayout", docs: docs, user: req.user });
+    response.render("mailbox", { layout: "mainlayout", docs: docs, showControls: showControls(req), user: req.user });
   });
 });
 
-app.use("/details/:id", ensureLoggedIn('/login'), (req, response) => {
+uiRouter.use("/details/:id", (req, response) => {
   db.getInbox().exec((error, docs) => {
     db.findEmail({ _id: req.params.id }).exec((err, result) => {
       if (result[0].html) {
@@ -163,15 +177,15 @@ app.use("/details/:id", ensureLoggedIn('/login'), (req, response) => {
   });
 });
 
-app.use("/user/preferences", ensureLoggedIn('/login'), (req, response) => {
+uiRouter.use("/user/preferences", (req, response) => {
   authdb.serialize(function() {
     authdb.get('SELECT * FROM users WHERE id = ?', [ req.user.id ], function(err, row) {
-      response.render("preferences", { layout: "mainlayout", user: req.user, accessToken: row.accessToken });
+      response.render("preferences", { layout: "mainlayout", user: req.user, accessToken: row.accessToken, showControls: showControls(req) });
     });
   });
 });
 
-app.use("/user/generatetoken", ensureLoggedIn('/login'), (req, response) => {
+uiRouter.use("/user/generatetoken", (req, response) => {
   var accessToken = nanoid(KEYLENGTH);
   authdb.serialize(() => {
     authdb.run('UPDATE users SET accessToken = ? WHERE id = ?', [
@@ -186,34 +200,60 @@ app.use("/user/generatetoken", ensureLoggedIn('/login'), (req, response) => {
 
 app.use('/', authRouter);
 app.use('/api', apiRouter);
+app.use('/', uiRouter);
 
-function verifyToken(req, res, next) {
-  //If APIs are protected, enable authentication via token
-  const bearerHeader = req.headers['authorization'];
-  if (typeof bearerHeader !== 'undefined') {
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-
-    authdb.serialize(function() {
-      authdb.get('SELECT * FROM users WHERE accessToken = ?', [ bearerToken ], function(err, row) {
-        if (row) {
-          req.token = bearerToken;
-          next();
+function validateLogin(options) {
+    if (typeof options == 'string') {
+      options = { redirectTo: options }
+    }
+    options = options || {};
+    
+    var url = options.redirectTo || '/login';
+    var setReturnTo = (options.setReturnTo === undefined) ? true : options.setReturnTo;
+    
+    return function(req, res, next) {
+      if (AUTH_ENABLED) {
+        if (!req.isAuthenticated || !req.isAuthenticated()) {
+          if (setReturnTo && req.session) {
+            req.session.returnTo = req.originalUrl || req.url;
+          }
+          return res.redirect(url);
         }
-        else{
-          res.sendStatus(403);
-        }
-      });
-    });
-  }
-  else {
-    res.sendStatus(403);
-  }
+        next();
+      }
+      else{
+        next();
+      }
+    }
 }
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+function verifyToken(req, res, next) {
+  if (AUTH_ENABLED) {
+    //If APIs are protected, enable authentication via token
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+
+      authdb.serialize(function() {
+        authdb.get('SELECT * FROM users WHERE accessToken = ?', [ bearerToken ], function(err, row) {
+          if (row) {
+            req.token = bearerToken;
+            next();
+          }
+          else{
+            res.sendStatus(403);
+          }
+        });
+      });
+    }
+    else {
+      res.sendStatus(403);
+    }
+  }
+  else {
+    next();
+  }
+}
 
 module.exports = app;
