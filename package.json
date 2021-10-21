@@ -3,19 +3,27 @@
   "version": "0.3.0",
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "createuser": "node ./utils/createUser.js"
   },
   "dependencies": {
+    "connect-ensure-login": "^0.1.1",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-handlebars": "^3.1.0",
+    "express-session": "^1.17.2",
     "http-errors": "~1.6.3",
     "install": "^0.13.0",
     "mailparser": "^2.7.7",
     "morgan": "~1.9.1",
+    "nanoid": "^3.1.30",
     "nedb": "^1.8.0",
-    "smtp-server": "^3.5.0"
+    "passport": "^0.5.0",
+    "passport-local": "^1.0.0",
+    "smtp-server": "^3.5.0",
+    "sqlite3": "^5.0.2"
   },
   "bin": {
     "mailprobe": "./bin/www"

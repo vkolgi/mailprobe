@@ -1,0 +1,31 @@
+<div class="container mt-5">
+    <div class="row">
+        <!-- Profile Settings-->
+        <div class="col-lg-8 pb-5">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="account-pass">API Token</label>
+                    <input class="form-control" id="apitoken" readonly value="{{accessToken}}">
+                    <div class="mt-2 alert alert-warning" role="alert">
+                        This API token never expires.<br>
+                        This should be sent as an Authorization Header bearer for API requests.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 pt-4">
+                <div class="form-group">
+                    <button type="submit" id="btnGenerateToken" class="btn btn-primary btn-block">Generate New API Token</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+ $("#btnGenerateToken").click(function(event) {
+    event.preventDefault();
+    $.ajax({url: "/user/generatetoken", success: function(result){
+        $("#apitoken").val(result.accessToken);
+    }});
+ })
+</script>

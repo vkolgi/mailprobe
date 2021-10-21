@@ -14,24 +14,37 @@
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-
-  <div class="collapse navbar-collapse" id="navbarColor02">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="/inbox">Inbox <span class="sr-only">(current)</span></a>
-      </li>
-      <!--<li class="nav-item">-->
-        <!--<a class="nav-link" href="#">Settings</a>-->
-      <!--</li>-->
-    </ul>
-    <form id="search" class="form-inline my-2 my-lg-0" action="">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchtext">
-      <button class="btn btn-success my-2 my-sm-0" type="submit"><span class="oi oi-magnifying-glass" title="icon name" aria-hidden="true"></span></button>
-    </form>
-    <div class="ml-5">
-    <button class="btn btn-danger" id="deleteall" type="button"><span class="oi oi-delete" title="icon name"></span> Delete All </button>
+  {{#if showControls}}
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/inbox">Inbox <span class="sr-only">(current)</span></a>
+        </li>
+        <!--<li class="nav-item">-->
+          <!--<a class="nav-link" href="#">Settings</a>-->
+        <!--</li>-->
+      </ul>
+      <form id="search" class="form-inline my-2 my-lg-0" action="">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchtext">
+        <button class="btn btn-success my-2 my-sm-0" type="submit"><span class="oi oi-magnifying-glass" title="icon name" aria-hidden="true"></span></button>
+      </form>
+      <div class="ml-5">
+      <button class="btn btn-danger" id="deleteall" type="button"><span class="oi oi-delete" title="icon name"></span> Delete All </button>
+      </div>
+      {{#if user}}
+        <div class="pull-right ml-5 pl-3">
+          <ul class="nav pull-right">
+              <li class="dropdown"><a href="#" class="dropdown-toggle text-light" data-toggle="dropdown">Welcome, User <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                      <li class="p-2"><a href="/user/preferences"><i class="icon-cog"></i> Preferences</a></li>
+                      <li class="p-2"><a href="/logout"><i class="icon-off"></i> Logout</a></li>
+                  </ul>
+              </li>
+          </ul>
+        </div>
+      {{/if}}
     </div>
-  </div>
+  {{/if}}
 </nav>
 
 {{{ body }}}
@@ -70,5 +83,12 @@
     $(event.currentTarget).find('#modal-container #emailiframe').attr('src','/details/'+email_id);
     $(event.currentTarget).find('.modal-title').text(subject);
   })
+
+  $("#logout").click(function(event){
+    event.preventDefault();
+    $.ajax({url: "/logout", success: function(result){
+      document.location.href = "/login";
+    }});
+  });
 </script>
 </html>
